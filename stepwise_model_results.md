@@ -66,20 +66,27 @@ Stephane requested confirmation that EPA ECHO WPS establishment counts are avail
 
 ## Model 0 — Unconditional Baseline
 
-> **violations ~ time + time² + time³ + (1 + time | state)**
+**Formula:** `violations ~ time + time² + time³ + (1 + time | state)`
 
-| Parameter | Estimate |
-|-----------|----------|
-| Intercept | 17.46 |
-| time | 2.97*** |
-| time² | −0.63† |
-| time³ | −0.15** |
-| **σ²_u0 (between-state)** | **325.71** |
-| σ²_ε (within-state) | 95.99 |
+#### Fixed Effects
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.4569 | 3.2025 | 5.451 | < .001 |
+| time | 2.9648 | 0.7754 | 3.824 | < .001 |
+| time² | −0.6260 | 0.3464 | −1.807 | .071 |
+| time³ | −0.1453 | 0.0520 | −2.794 | .005 |
+
+#### Random Effects & Fit
+
+| Component | Value |
+|-----------|------:|
+| σ²_u0 — between-state (Group Var) | 325.71 |
+| σ²_u0×time Cov | 51.84 |
+| σ²_u1 — time slope Var | 8.52 |
+| σ²_ε — within-state (Scale) | 95.99 |
 | **ICC** | **0.772** |
 | Log-Likelihood | −974.99 |
-
-†p < .10, \*p < .05, \*\*p < .01, \*\*\*p < .001
 
 **77.2% of total variance is between states**, confirming strong state-level clustering and justifying the HLM structure.
 
@@ -89,16 +96,15 @@ Stephane requested confirmation that EPA ECHO WPS establishment counts are avail
 
 All Level-2 predictors are **z-score standardized** (mean = 0, SD = 1) before entry so coefficients are directly comparable across predictors.
 
-| Covariate | Source | Type | Mean (raw) | SD (raw) |
-|-----------|--------|------|-----------|---------|
-| `spending_per_operation` | Mean 2017$ spending / Census 2017 farming operations | State-level | $19.56 | $47.97 |
-| `land_area_sqmi` | US Census Bureau (total sq miles) | State-level, constant | 75,891 | 97,066 |
-| `spending_per_estab` | Mean 2017$ spending / ECHO establishment mean (2015–2019) | State-level | $5,209 | $13,949 |
-| `operations` | Total farming operations, Census 2017 (from Yuri) | State-level | 40,844 | 39,314 |
-| `h2a_workers` | H-2A workers per state, 2017 (from Yuri) | State-level | 3,340 | 6,562 |
-| `workers_per_operation` | H-2A workers / total operations, 2017 (from Yuri) | State-level | 0.098 | 0.158 |
+| Covariate | Source | Mean (raw) | SD (raw) |
+|-----------|--------|-----------|---------|
+| `spending_per_estab` | Mean 2017$ spending / ECHO establishment mean (2015–2019) | $5,209 | $13,949 |
+| `land_area_sqmi` | US Census Bureau (total sq miles) | 75,891 | 97,066 |
+| `operations` | Total farming operations, Census 2017 (from Yuri) | 40,844 | 39,314 |
+| `h2a_workers` | H-2A workers per state, 2017 (from Yuri) | 3,340 | 6,562 |
+| `workers_per_operation` | H-2A workers / total operations, 2017 (from Yuri) | 0.098 | 0.158 |
 
-> **Note on dollars-per-acre:** The priority operationalization from Option 1 (spending / harvested cropland acres from USDA NASS Quick Stats) requires data not currently in the project files. `spending_per_operation` is used as the closest available proxy; Census of Agriculture operations are the recommended fallback per Stephane's email.
+> **Note on dollars-per-acre:** The originally requested starting variable (spending / harvested cropland acres from USDA NASS Quick Stats) cannot be computed — that data is not currently in the project files. `spending_per_estab` is used as the primary spending variable per the team's agreed operationalization.
 
 ---
 
@@ -108,93 +114,210 @@ For each predictor, two models are fit:
 - **(a) Main effect only** — predictor entered as a fixed effect
 - **(b) Main effect + linear time interaction** — tests whether the predictor moderates the linear time trend
 
-The key metric is **% between-state variance explained** relative to the M0 baseline (σ²_u0 = 325.71).
+All predictors are z-score standardized; coefficients represent the change in violations per 1 SD increase in the predictor. The key tracking metric is **% between-state variance explained** relative to M0 (σ²_u0 = 325.71).
 
 ---
 
-### 1. Spending per Farming Operation
+### 1. Spending per ECHO Establishment
 
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | −1.58 | .318 | 316.98 | +8.72 | 2.7% | −972.70 |
-| (b) Main + ×time | −4.62 / ×time: −0.81 | .142 / .268 | 318.19 | +7.52 | 2.3% | −971.52 |
+#### (a) Main effect only
+**Formula:** `violations ~ time + time² + time³ + spending_per_estab_z + (1 + time | state)`
 
-Neither coefficient is statistically significant. Spending scaled by farming operations explains roughly 2–3% of between-state variance.
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.6270 | 3.1190 | 5.651 | < .001 |
+| time | 2.9639 | 0.7459 | 3.973 | < .001 |
+| time² | −0.6327 | 0.3471 | −1.823 | .068 |
+| time³ | −0.1437 | 0.0523 | −2.748 | .006 |
+| **spending_per_estab_z** | **−1.9799** | **1.6307** | **−1.214** | **.225** |
+
+| σ²_u0 | 311.30 | Δ vs. M0 | +14.41 **(4.4% explained)** |
+|--------|--------|----------|---------------------------|
+| σ²_ε | 97.56 | LogLik | −972.33 |
+
+#### (b) Main effect + linear time interaction
+**Formula:** `violations ~ time + time² + time³ + spending_per_estab_z + spending_per_estab_z×time + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.8496 | 3.1244 | 5.713 | < .001 |
+| time | 3.0075 | 0.7471 | 4.025 | < .001 |
+| time² | −0.6391 | 0.3477 | −1.838 | .066 |
+| time³ | −0.1467 | 0.0524 | −2.798 | .005 |
+| **spending_per_estab_z** | **−4.7848** | **3.0872** | **−1.550** | **.121** |
+| **spending_per_estab_z × time** | **−0.7645** | **0.7267** | **−1.052** | **.293** |
+
+| σ²_u0 | 311.98 | Δ vs. M0 | +13.72 **(4.2% explained)** |
+|--------|--------|----------|---------------------------|
+| σ²_ε | 97.46 | LogLik | −971.10 |
+
+Neither coefficient is statistically significant. The negative direction is consistent with the expected direction — states with more funding per establishment have fewer violations — but the effect is not reliably estimated in this sample.
 
 ---
 
 ### 2. State Land Area (sq miles)
 
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | −0.80 | .581 | 325.21 | +0.49 | 0.2% | −973.79 |
-| (b) Main + ×time | 0.02 / ×time: 0.19 | .994 / .764 | 328.68 | −2.97 | −0.9% | −973.35 |
+#### (a) Main effect only
+**Formula:** `violations ~ time + time² + time³ + land_area_sqmi_z + (1 + time | state)`
 
-Land area explains essentially none of the between-state variance and is not significant. Joe's travel-burden hypothesis is theoretically sound but not supported by this data.
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.5575 | 3.2051 | 5.478 | < .001 |
+| time | 2.9455 | 0.7755 | 3.798 | < .001 |
+| time² | −0.6283 | 0.3470 | −1.811 | .070 |
+| time³ | −0.1441 | 0.0522 | −2.761 | .006 |
+| **land_area_sqmi_z** | **−0.7970** | **1.4447** | **−0.552** | **.581** |
 
----
+| σ²_u0 | 325.21 | Δ vs. M0 | +0.49 **(0.2% explained)** |
+|--------|--------|----------|--------------------------|
+| σ²_ε | 96.33 | LogLik | −973.79 |
 
-### 3. Spending per ECHO Establishment
+#### (b) Main effect + linear time interaction
+**Formula:** `violations ~ time + time² + time³ + land_area_sqmi_z + land_area_sqmi_z×time + (1 + time | state)`
 
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | −1.98 | .225 | 311.30 | +14.41 | 4.4% | −972.33 |
-| (b) Main + ×time | −4.78 / ×time: −0.76 | .121 / .293 | 311.98 | +13.72 | 4.2% | −971.10 |
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.4368 | 3.2458 | 5.372 | < .001 |
+| time | 2.9307 | 0.7881 | 3.719 | < .001 |
+| time² | −0.6167 | 0.3478 | −1.773 | .076 |
+| time³ | −0.1423 | 0.0524 | −2.716 | .007 |
+| **land_area_sqmi_z** | **0.0210** | **3.0226** | **0.007** | **.994** |
+| **land_area_sqmi_z × time** | **0.1884** | **0.6286** | **0.300** | **.764** |
 
-Slightly stronger than per-operation spending (~4% variance explained), but still not statistically significant. The negative direction is consistent with the expected direction — states with more funding per establishment have lower violations — but the effect is not reliably estimated with this sample.
+| σ²_u0 | 328.68 | Δ vs. M0 | −2.97 **(−0.9% — variance increases)** |
+|--------|--------|----------|----------------------------------------|
+| σ²_ε | 96.36 | LogLik | −973.35 |
 
----
-
-### 4. Total Farming Operations (Census 2017)
-
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | 0.98 | .609 | 271.46 | +54.25 | **16.7%** | −973.39 |
-| (b) Main + ×time | 7.92 / ×time: 1.30 | **.003** / **.003** | 264.67 | +61.04 | **18.7%** | −969.25 |
-
-The largest reduction in between-state variance of any single predictor. The time interaction is highly significant — states with more farming operations have a steeper positive trend in violations over time.
-
----
-
-### 5. H-2A Workers per State (2017)
-
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | 3.19 | **< .001** | 271.39 | +54.32 | **16.7%** | −967.61 |
-| (b) Main + ×time | 9.94 / ×time: 1.39 | **.001** / **.023** | 266.10 | +59.61 | **18.3%** | −964.63 |
-
-Nearly identical variance absorption as total farming operations. H-2A workers and total operations are likely highly correlated — **VIF should be checked before including both in the same model.**
+Land area explains essentially none of the between-state variance and is not significant in either model form. Joe's travel-burden hypothesis is theoretically sound but not supported by this data.
 
 ---
 
-### 6. H-2A Workers per Operation (2017)
+### 3. Total Farming Operations (Census 2017)
 
-| Model | β (standardized) | p | σ²_u0 | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------------|---|-------|---------|-------------|--------|
-| (a) Main only | 2.32 | .046 | 329.78 | −4.07 | −1.3% | −974.06 |
-| (b) Main + ×time | 5.04 / ×time: 0.54 | .114 / .378 | 327.43 | −1.73 | −0.5% | −969.44 |
+#### (a) Main effect only
+**Formula:** `violations ~ time + time² + time³ + operations_z + (1 + time | state)`
 
-Although the main effect reaches nominal significance (p = .046), between-state variance actually *increases* slightly relative to M0. This suggests instability — possibly driven by multicollinearity with `h2a_workers` or `operations`, or the ratio masking the underlying scale differences across states.
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.3142 | 3.1197 | 5.550 | < .001 |
+| time | 2.9343 | 0.8200 | 3.578 | < .001 |
+| time² | −0.6297 | 0.3568 | −1.765 | .078 |
+| time³ | −0.1452 | 0.0532 | −2.730 | .006 |
+| **operations_z** | **0.9838** | **1.9218** | **0.512** | **.609** |
+
+| σ²_u0 | 271.46 | Δ vs. M0 | +54.25 **(16.7% explained)** |
+|--------|--------|----------|------------------------------|
+| σ²_ε | 101.60 | LogLik | −973.39 |
+
+#### (b) Main effect + linear time interaction
+**Formula:** `violations ~ time + time² + time³ + operations_z + operations_z×time + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.1166 | 2.9132 | 5.876 | < .001 |
+| time | 2.8799 | 0.7465 | 3.858 | < .001 |
+| time² | −0.6227 | 0.3504 | −1.777 | .076 |
+| time³ | −0.1440 | 0.0524 | −2.746 | .006 |
+| **operations_z** | **7.9188** | **2.6206** | **3.022** | **.003** |
+| **operations_z × time** | **1.3045** | **0.4442** | **2.937** | **.003** |
+
+| σ²_u0 | 264.67 | Δ vs. M0 | +61.04 **(18.7% explained)** |
+|--------|--------|----------|------------------------------|
+| σ²_ε | 98.85 | LogLik | −969.25 |
+
+The largest single reduction in between-state variance. Both the main effect and time interaction are highly significant (p = .003) in model (b) — states with more farming operations have higher baseline violations and a steeper upward trend over time.
+
+---
+
+### 4. H-2A Workers per State (2017)
+
+#### (a) Main effect only
+**Formula:** `violations ~ time + time² + time³ + h2a_workers_z + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 16.7964 | 3.0268 | 5.549 | < .001 |
+| time | 2.8575 | 0.7819 | 3.654 | < .001 |
+| time² | −0.6365 | 0.3451 | −1.844 | .065 |
+| time³ | −0.1470 | 0.0517 | −2.841 | .004 |
+| **h2a_workers_z** | **3.1907** | **0.9117** | **3.500** | **< .001** |
+
+| σ²_u0 | 271.39 | Δ vs. M0 | +54.32 **(16.7% explained)** |
+|--------|--------|----------|------------------------------|
+| σ²_ε | 96.61 | LogLik | −967.61 |
+
+#### (b) Main effect + linear time interaction
+**Formula:** `violations ~ time + time² + time³ + h2a_workers_z + h2a_workers_z×time + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 16.9438 | 2.9971 | 5.653 | < .001 |
+| time | 2.9863 | 0.7739 | 3.859 | < .001 |
+| time² | −0.6447 | 0.3435 | −1.877 | .061 |
+| time³ | −0.1521 | 0.0515 | −2.954 | .003 |
+| **h2a_workers_z** | **9.9413** | **3.0930** | **3.214** | **.001** |
+| **h2a_workers_z × time** | **1.3876** | **0.6104** | **2.273** | **.023** |
+
+| σ²_u0 | 266.10 | Δ vs. M0 | +59.61 **(18.3% explained)** |
+|--------|--------|----------|------------------------------|
+| σ²_ε | 95.09 | LogLik | −964.63 |
+
+Nearly identical variance absorption as total farming operations. Both the main effect and time interaction are significant. H-2A workers and total operations are likely highly correlated — **VIF should be checked before including both in the same model.**
+
+---
+
+### 5. H-2A Workers per Operation (2017)
+
+#### (a) Main effect only
+**Formula:** `violations ~ time + time² + time³ + workers_per_operation_z + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 17.0260 | 3.2645 | 5.215 | < .001 |
+| time | 2.8939 | 0.8083 | 3.580 | < .001 |
+| time² | −0.6330 | 0.3412 | −1.855 | .064 |
+| time³ | −0.1467 | 0.0512 | −2.863 | .004 |
+| **workers_per_operation_z** | **2.3152** | **1.1611** | **1.994** | **.046** |
+
+| σ²_u0 | 329.78 | Δ vs. M0 | −4.07 **(−1.3% — variance increases)** |
+|--------|--------|----------|----------------------------------------|
+| σ²_ε | 92.32 | LogLik | −974.06 |
+
+#### (b) Main effect + linear time interaction
+**Formula:** `violations ~ time + time² + time³ + workers_per_operation_z + workers_per_operation_z×time + (1 + time | state)`
+
+| Parameter | Coef. | SE | z | p |
+|-----------|------:|---:|--:|--:|
+| Intercept | 16.9319 | 3.2617 | 5.191 | < .001 |
+| time | 2.9477 | 0.7999 | 3.685 | < .001 |
+| time² | −0.6151 | 0.3444 | −1.786 | .074 |
+| time³ | −0.1462 | 0.0516 | −2.830 | .005 |
+| **workers_per_operation_z** | **5.0423** | **3.1872** | **1.582** | **.114** |
+| **workers_per_operation_z × time** | **0.5398** | **0.6122** | **0.882** | **.378** |
+
+| σ²_u0 | 327.43 | Δ vs. M0 | −1.73 **(−0.5% — variance increases)** |
+|--------|--------|----------|----------------------------------------|
+| σ²_ε | 95.00 | LogLik | −969.44 |
+
+Although the main effect reaches nominal significance in model (a) (p = .046), between-state variance actually increases relative to M0 in both model forms. This suggests instability — possibly driven by collinearity with `h2a_workers` or `operations`, or the ratio measure masking underlying scale differences across states.
 
 ---
 
 ## Summary Variance Decomposition Table
 
 | Model | Predictor | σ²_u0 | σ²_ε | Δσ²_u0 | % Explained | LogLik |
-|-------|-----------|-------|------|---------|-------------|--------|
+|-------|-----------|------:|-----:|-------:|------------:|-------:|
 | M0 | Time only (baseline) | 325.71 | 95.99 | — | — | −974.99 |
-| M1a | + spending/operation | 316.98 | 97.22 | +8.72 | 2.7% | −972.70 |
-| M1b | + spending/operation × time | 318.19 | 96.88 | +7.52 | 2.3% | −971.52 |
+| M1a | + spending/estab | 311.30 | 97.56 | +14.41 | 4.4% | −972.33 |
+| M1b | + spending/estab × time | 311.98 | 97.46 | +13.72 | 4.2% | −971.10 |
 | M2a | + land area | 325.21 | 96.33 | +0.49 | 0.2% | −973.79 |
 | M2b | + land area × time | 328.68 | 96.36 | −2.97 | −0.9% | −973.35 |
-| M3a | + spending/establishment | 311.30 | 97.56 | +14.41 | 4.4% | −972.33 |
-| M3b | + spending/establishment × time | 311.98 | 97.46 | +13.72 | 4.2% | −971.10 |
-| M4a | + farming operations | 271.46 | 101.60 | +54.25 | **16.7%** | −973.39 |
-| M4b | + farming operations × time | 264.67 | 98.85 | +61.04 | **18.7%** | −969.25 |
-| M5a | + H-2A workers | 271.39 | 96.61 | +54.32 | **16.7%** | −967.61 |
-| M5b | + H-2A workers × time | 266.10 | 95.09 | +59.61 | **18.3%** | −964.63 |
-| M6a | + workers/operation | 329.78 | 92.32 | −4.07 | −1.3% | −974.06 |
-| M6b | + workers/operation × time | 327.43 | 95.00 | −1.73 | −0.5% | −969.44 |
+| M3a | + farming operations | 271.46 | 101.60 | +54.25 | **16.7%** | −973.39 |
+| M3b | + farming operations × time | 264.67 | 98.85 | +61.04 | **18.7%** | −969.25 |
+| M4a | + H-2A workers | 271.39 | 96.61 | +54.32 | **16.7%** | −967.61 |
+| M4b | + H-2A workers × time | 266.10 | 95.09 | +59.61 | **18.3%** | −964.63 |
+| M5a | + workers/operation | 329.78 | 92.32 | −4.07 | −1.3% | −974.06 |
+| M5b | + workers/operation × time | 327.43 | 95.00 | −1.73 | −0.5% | −969.44 |
 
 ---
 
