@@ -1,11 +1,11 @@
 # Stepwise Variable-by-Variable Models — WPS Enforcement Analysis
-**Zimmerman/HLM Approach | Keshav Goel | April 2026**
+**Zimmerman/HLM Approach | Keshav Goel | May 2026**
 
 ---
 
 ## Overview
 
-This document reports results from the variable-by-variable model-building sequence following the Zimmerman (2000) / Raudenbush & Bryk (2002) HLM approach. Each predictor is entered one at a time into the unconditional model, and the reduction in between-state variance is tracked at each step.
+This document reports results from the variable-by-variable model-building sequence following the Zimmerman (2000) / Raudenbush & Bryk (2002) HLM approach. Each predictor is entered one at a time into the unconditional model, and the reduction in between-state variance is tracked at each step. A combined model testing the two strongest predictors jointly is included to assess collinearity.
 
 **Sample:** 250 observations, 47 states, 2011–2019  
 **Outcome:** WPS violations per state-year  
@@ -58,7 +58,7 @@ Stephane requested confirmation that EPA ECHO WPS establishment counts are avail
 | 2022 | **Not yet pulled** | Needed if study period extends to 2022 |
 
 **Action items:**
-- Pull ECHO WPS establishment counts for 2020–2022 and re-audit before committing to per-establishment as the final denominator
+- Pull ECHO WPS establishment counts for 2020–2022 (Stephane's specific ask) — required before per-establishment spending can be used for any analysis period extending to 2022
 - For **2011–2013**: substitute USDA Census of Agriculture farm counts (2012 and 2017 census values; interpolate non-census years). Must be documented in the methods section.
 - For **CO and CT in 2014**: imputed from their 2015 values for this analysis (CO = 130, CT = 47)
 
@@ -70,8 +70,8 @@ Stephane requested confirmation that EPA ECHO WPS establishment counts are avail
 
 #### Fixed Effects
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
+| Parameter | β | SE | z | p |
+|-----------|--:|---:|--:|--:|
 | Intercept | 17.4569 | 3.2025 | 5.451 | < .001 |
 | time | 2.9648 | 0.7754 | 3.824 | < .001 |
 | time² | −0.6260 | 0.3464 | −1.807 | .071 |
@@ -123,13 +123,13 @@ All predictors are z-score standardized; coefficients represent the change in vi
 #### (a) Main effect only
 **Formula:** `violations ~ time + time² + time³ + spending_per_estab_z + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.6270 | 3.1190 | 5.651 | < .001 |
-| time | 2.9639 | 0.7459 | 3.973 | < .001 |
-| time² | −0.6327 | 0.3471 | −1.823 | .068 |
-| time³ | −0.1437 | 0.0523 | −2.748 | .006 |
-| **spending_per_estab_z** | **−1.9799** | **1.6307** | **−1.214** | **.225** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.6270 | 3.1190 | < .001 |
+| time | 2.9639 | 0.7459 | < .001 |
+| time² | −0.6327 | 0.3471 | .068 |
+| time³ | −0.1437 | 0.0523 | .006 |
+| **spending_per_estab_z** | **−1.9799** | **1.6307** | **.225** |
 
 | σ²_u0 | 311.30 | Δ vs. M0 | +14.41 **(4.4% explained)** |
 |--------|--------|----------|---------------------------|
@@ -138,14 +138,14 @@ All predictors are z-score standardized; coefficients represent the change in vi
 #### (b) Main effect + linear time interaction
 **Formula:** `violations ~ time + time² + time³ + spending_per_estab_z + spending_per_estab_z×time + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.8496 | 3.1244 | 5.713 | < .001 |
-| time | 3.0075 | 0.7471 | 4.025 | < .001 |
-| time² | −0.6391 | 0.3477 | −1.838 | .066 |
-| time³ | −0.1467 | 0.0524 | −2.798 | .005 |
-| **spending_per_estab_z** | **−4.7848** | **3.0872** | **−1.550** | **.121** |
-| **spending_per_estab_z × time** | **−0.7645** | **0.7267** | **−1.052** | **.293** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.8496 | 3.1244 | < .001 |
+| time | 3.0075 | 0.7471 | < .001 |
+| time² | −0.6391 | 0.3477 | .066 |
+| time³ | −0.1467 | 0.0524 | .005 |
+| **spending_per_estab_z** | **−4.7848** | **3.0872** | **.121** |
+| **spending_per_estab_z × time** | **−0.7645** | **0.7267** | **.293** |
 
 | σ²_u0 | 311.98 | Δ vs. M0 | +13.72 **(4.2% explained)** |
 |--------|--------|----------|---------------------------|
@@ -160,13 +160,13 @@ Neither coefficient is statistically significant. The negative direction is cons
 #### (a) Main effect only
 **Formula:** `violations ~ time + time² + time³ + land_area_sqmi_z + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.5575 | 3.2051 | 5.478 | < .001 |
-| time | 2.9455 | 0.7755 | 3.798 | < .001 |
-| time² | −0.6283 | 0.3470 | −1.811 | .070 |
-| time³ | −0.1441 | 0.0522 | −2.761 | .006 |
-| **land_area_sqmi_z** | **−0.7970** | **1.4447** | **−0.552** | **.581** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.5575 | 3.2051 | < .001 |
+| time | 2.9455 | 0.7755 | < .001 |
+| time² | −0.6283 | 0.3470 | .070 |
+| time³ | −0.1441 | 0.0522 | .006 |
+| **land_area_sqmi_z** | **−0.7970** | **1.4447** | **.581** |
 
 | σ²_u0 | 325.21 | Δ vs. M0 | +0.49 **(0.2% explained)** |
 |--------|--------|----------|--------------------------|
@@ -175,14 +175,14 @@ Neither coefficient is statistically significant. The negative direction is cons
 #### (b) Main effect + linear time interaction
 **Formula:** `violations ~ time + time² + time³ + land_area_sqmi_z + land_area_sqmi_z×time + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.4368 | 3.2458 | 5.372 | < .001 |
-| time | 2.9307 | 0.7881 | 3.719 | < .001 |
-| time² | −0.6167 | 0.3478 | −1.773 | .076 |
-| time³ | −0.1423 | 0.0524 | −2.716 | .007 |
-| **land_area_sqmi_z** | **0.0210** | **3.0226** | **0.007** | **.994** |
-| **land_area_sqmi_z × time** | **0.1884** | **0.6286** | **0.300** | **.764** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.4368 | 3.2458 | < .001 |
+| time | 2.9307 | 0.7881 | < .001 |
+| time² | −0.6167 | 0.3478 | .076 |
+| time³ | −0.1423 | 0.0524 | .007 |
+| **land_area_sqmi_z** | **0.0210** | **3.0226** | **.994** |
+| **land_area_sqmi_z × time** | **0.1884** | **0.6286** | **.764** |
 
 | σ²_u0 | 328.68 | Δ vs. M0 | −2.97 **(−0.9% — variance increases)** |
 |--------|--------|----------|----------------------------------------|
@@ -197,13 +197,13 @@ Land area explains essentially none of the between-state variance and is not sig
 #### (a) Main effect only
 **Formula:** `violations ~ time + time² + time³ + operations_z + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.3142 | 3.1197 | 5.550 | < .001 |
-| time | 2.9343 | 0.8200 | 3.578 | < .001 |
-| time² | −0.6297 | 0.3568 | −1.765 | .078 |
-| time³ | −0.1452 | 0.0532 | −2.730 | .006 |
-| **operations_z** | **0.9838** | **1.9218** | **0.512** | **.609** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.3142 | 3.1197 | < .001 |
+| time | 2.9343 | 0.8200 | < .001 |
+| time² | −0.6297 | 0.3568 | .078 |
+| time³ | −0.1452 | 0.0532 | .006 |
+| **operations_z** | **0.9838** | **1.9218** | **.609** |
 
 | σ²_u0 | 271.46 | Δ vs. M0 | +54.25 **(16.7% explained)** |
 |--------|--------|----------|------------------------------|
@@ -212,14 +212,14 @@ Land area explains essentially none of the between-state variance and is not sig
 #### (b) Main effect + linear time interaction
 **Formula:** `violations ~ time + time² + time³ + operations_z + operations_z×time + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.1166 | 2.9132 | 5.876 | < .001 |
-| time | 2.8799 | 0.7465 | 3.858 | < .001 |
-| time² | −0.6227 | 0.3504 | −1.777 | .076 |
-| time³ | −0.1440 | 0.0524 | −2.746 | .006 |
-| **operations_z** | **7.9188** | **2.6206** | **3.022** | **.003** |
-| **operations_z × time** | **1.3045** | **0.4442** | **2.937** | **.003** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.1166 | 2.9132 | < .001 |
+| time | 2.8799 | 0.7465 | < .001 |
+| time² | −0.6227 | 0.3504 | .076 |
+| time³ | −0.1440 | 0.0524 | .006 |
+| **operations_z** | **7.9188** | **2.6206** | **.003** |
+| **operations_z × time** | **1.3045** | **0.4442** | **.003** |
 
 | σ²_u0 | 264.67 | Δ vs. M0 | +61.04 **(18.7% explained)** |
 |--------|--------|----------|------------------------------|
@@ -234,13 +234,13 @@ The largest single reduction in between-state variance. Both the main effect and
 #### (a) Main effect only
 **Formula:** `violations ~ time + time² + time³ + h2a_workers_z + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 16.7964 | 3.0268 | 5.549 | < .001 |
-| time | 2.8575 | 0.7819 | 3.654 | < .001 |
-| time² | −0.6365 | 0.3451 | −1.844 | .065 |
-| time³ | −0.1470 | 0.0517 | −2.841 | .004 |
-| **h2a_workers_z** | **3.1907** | **0.9117** | **3.500** | **< .001** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 16.7964 | 3.0268 | < .001 |
+| time | 2.8575 | 0.7819 | < .001 |
+| time² | −0.6365 | 0.3451 | .065 |
+| time³ | −0.1470 | 0.0517 | .004 |
+| **h2a_workers_z** | **3.1907** | **0.9117** | **< .001** |
 
 | σ²_u0 | 271.39 | Δ vs. M0 | +54.32 **(16.7% explained)** |
 |--------|--------|----------|------------------------------|
@@ -249,20 +249,20 @@ The largest single reduction in between-state variance. Both the main effect and
 #### (b) Main effect + linear time interaction
 **Formula:** `violations ~ time + time² + time³ + h2a_workers_z + h2a_workers_z×time + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 16.9438 | 2.9971 | 5.653 | < .001 |
-| time | 2.9863 | 0.7739 | 3.859 | < .001 |
-| time² | −0.6447 | 0.3435 | −1.877 | .061 |
-| time³ | −0.1521 | 0.0515 | −2.954 | .003 |
-| **h2a_workers_z** | **9.9413** | **3.0930** | **3.214** | **.001** |
-| **h2a_workers_z × time** | **1.3876** | **0.6104** | **2.273** | **.023** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 16.9438 | 2.9971 | < .001 |
+| time | 2.9863 | 0.7739 | < .001 |
+| time² | −0.6447 | 0.3435 | .061 |
+| time³ | −0.1521 | 0.0515 | .003 |
+| **h2a_workers_z** | **9.9413** | **3.0930** | **.001** |
+| **h2a_workers_z × time** | **1.3876** | **0.6104** | **.023** |
 
 | σ²_u0 | 266.10 | Δ vs. M0 | +59.61 **(18.3% explained)** |
 |--------|--------|----------|------------------------------|
 | σ²_ε | 95.09 | LogLik | −964.63 |
 
-Nearly identical variance absorption as total farming operations. Both the main effect and time interaction are significant. H-2A workers and total operations are likely highly correlated — **VIF should be checked before including both in the same model.**
+Nearly identical variance absorption as total farming operations. Both the main effect and time interaction are significant. H-2A workers and total operations were suspected to be collinear — the combined model below tests this directly.
 
 ---
 
@@ -271,13 +271,13 @@ Nearly identical variance absorption as total farming operations. Both the main 
 #### (a) Main effect only
 **Formula:** `violations ~ time + time² + time³ + workers_per_operation_z + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 17.0260 | 3.2645 | 5.215 | < .001 |
-| time | 2.8939 | 0.8083 | 3.580 | < .001 |
-| time² | −0.6330 | 0.3412 | −1.855 | .064 |
-| time³ | −0.1467 | 0.0512 | −2.863 | .004 |
-| **workers_per_operation_z** | **2.3152** | **1.1611** | **1.994** | **.046** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 17.0260 | 3.2645 | < .001 |
+| time | 2.8939 | 0.8083 | < .001 |
+| time² | −0.6330 | 0.3412 | .064 |
+| time³ | −0.1467 | 0.0512 | .004 |
+| **workers_per_operation_z** | **2.3152** | **1.1611** | **.046** |
 
 | σ²_u0 | 329.78 | Δ vs. M0 | −4.07 **(−1.3% — variance increases)** |
 |--------|--------|----------|----------------------------------------|
@@ -286,14 +286,14 @@ Nearly identical variance absorption as total farming operations. Both the main 
 #### (b) Main effect + linear time interaction
 **Formula:** `violations ~ time + time² + time³ + workers_per_operation_z + workers_per_operation_z×time + (1 + time | state)`
 
-| Parameter | Coef. | SE | z | p |
-|-----------|------:|---:|--:|--:|
-| Intercept | 16.9319 | 3.2617 | 5.191 | < .001 |
-| time | 2.9477 | 0.7999 | 3.685 | < .001 |
-| time² | −0.6151 | 0.3444 | −1.786 | .074 |
-| time³ | −0.1462 | 0.0516 | −2.830 | .005 |
-| **workers_per_operation_z** | **5.0423** | **3.1872** | **1.582** | **.114** |
-| **workers_per_operation_z × time** | **0.5398** | **0.6122** | **0.882** | **.378** |
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 16.9319 | 3.2617 | < .001 |
+| time | 2.9477 | 0.7999 | < .001 |
+| time² | −0.6151 | 0.3444 | .074 |
+| time³ | −0.1462 | 0.0516 | .005 |
+| **workers_per_operation_z** | **5.0423** | **3.1872** | **.114** |
+| **workers_per_operation_z × time** | **0.5398** | **0.6122** | **.378** |
 
 | σ²_u0 | 327.43 | Δ vs. M0 | −1.73 **(−0.5% — variance increases)** |
 |--------|--------|----------|----------------------------------------|
@@ -303,7 +303,11 @@ Although the main effect reaches nominal significance in model (a) (p = .046), b
 
 ---
 
-## Summary Variance Decomposition Table
+## Summary Variance Decomposition Table (with Fixed Effect Estimates)
+
+Baseline σ²_u0 (M0) = **325.71**
+
+### Variance Components
 
 | Model | Predictor | σ²_u0 | σ²_ε | Δσ²_u0 | % Explained | LogLik |
 |-------|-----------|------:|-----:|-------:|------------:|-------:|
@@ -318,6 +322,123 @@ Although the main effect reaches nominal significance in model (a) (p = .046), b
 | M4b | + H-2A workers × time | 266.10 | 95.09 | +59.61 | **18.3%** | −964.63 |
 | M5a | + workers/operation | 329.78 | 92.32 | −4.07 | −1.3% | −974.06 |
 | M5b | + workers/operation × time | 327.43 | 95.00 | −1.73 | −0.5% | −969.44 |
+| **M6** | **+ operations + H-2A (both × time)** | **229.14** | **95.31** | **+96.57** | **29.6%** | **−960.32** |
+
+### Fixed Effect Estimates — All Models
+
+| Model | Parameter | β | SE | p |
+|-------|-----------|--:|---:|--:|
+| **M0 (baseline)** | Intercept | 17.4569 | 3.2025 | < .001 |
+| | time | 2.9648 | 0.7754 | < .001 |
+| | time² | −0.6260 | 0.3464 | .071 |
+| | time³ | −0.1453 | 0.0520 | .005 |
+| **M1a** | Intercept | 17.6270 | 3.1190 | < .001 |
+| | time | 2.9639 | 0.7459 | < .001 |
+| | time² | −0.6327 | 0.3471 | .068 |
+| | time³ | −0.1437 | 0.0523 | .006 |
+| | spending_per_estab_z | −1.9799 | 1.6307 | .225 |
+| **M1b** | Intercept | 17.8496 | 3.1244 | < .001 |
+| | time | 3.0075 | 0.7471 | < .001 |
+| | time² | −0.6391 | 0.3477 | .066 |
+| | time³ | −0.1467 | 0.0524 | .005 |
+| | spending_per_estab_z | −4.7848 | 3.0872 | .121 |
+| | spending_per_estab_z × time | −0.7645 | 0.7267 | .293 |
+| **M2a** | Intercept | 17.5575 | 3.2051 | < .001 |
+| | time | 2.9455 | 0.7755 | < .001 |
+| | time² | −0.6283 | 0.3470 | .070 |
+| | time³ | −0.1441 | 0.0522 | .006 |
+| | land_area_sqmi_z | −0.7970 | 1.4447 | .581 |
+| **M2b** | Intercept | 17.4368 | 3.2458 | < .001 |
+| | time | 2.9307 | 0.7881 | < .001 |
+| | time² | −0.6167 | 0.3478 | .076 |
+| | time³ | −0.1423 | 0.0524 | .007 |
+| | land_area_sqmi_z | 0.0210 | 3.0226 | .994 |
+| | land_area_sqmi_z × time | 0.1884 | 0.6286 | .764 |
+| **M3a** | Intercept | 17.3142 | 3.1197 | < .001 |
+| | time | 2.9343 | 0.8200 | < .001 |
+| | time² | −0.6297 | 0.3568 | .078 |
+| | time³ | −0.1452 | 0.0532 | .006 |
+| | operations_z | 0.9838 | 1.9218 | .609 |
+| **M3b** | Intercept | 17.1166 | 2.9132 | < .001 |
+| | time | 2.8799 | 0.7465 | < .001 |
+| | time² | −0.6227 | 0.3504 | .076 |
+| | time³ | −0.1440 | 0.0524 | .006 |
+| | operations_z | 7.9188 | 2.6206 | .003 |
+| | operations_z × time | 1.3045 | 0.4442 | .003 |
+| **M4a** | Intercept | 16.7964 | 3.0268 | < .001 |
+| | time | 2.8575 | 0.7819 | < .001 |
+| | time² | −0.6365 | 0.3451 | .065 |
+| | time³ | −0.1470 | 0.0517 | .004 |
+| | h2a_workers_z | 3.1907 | 0.9117 | < .001 |
+| **M4b** | Intercept | 16.9438 | 2.9971 | < .001 |
+| | time | 2.9863 | 0.7739 | < .001 |
+| | time² | −0.6447 | 0.3435 | .061 |
+| | time³ | −0.1521 | 0.0515 | .003 |
+| | h2a_workers_z | 9.9413 | 3.0930 | .001 |
+| | h2a_workers_z × time | 1.3876 | 0.6104 | .023 |
+| **M5a** | Intercept | 17.0260 | 3.2645 | < .001 |
+| | time | 2.8939 | 0.8083 | < .001 |
+| | time² | −0.6330 | 0.3412 | .064 |
+| | time³ | −0.1467 | 0.0512 | .004 |
+| | workers_per_operation_z | 2.3152 | 1.1611 | .046 |
+| **M5b** | Intercept | 16.9319 | 3.2617 | < .001 |
+| | time | 2.9477 | 0.7999 | < .001 |
+| | time² | −0.6151 | 0.3444 | .074 |
+| | time³ | −0.1462 | 0.0516 | .005 |
+| | workers_per_operation_z | 5.0423 | 3.1872 | .114 |
+| | workers_per_operation_z × time | 0.5398 | 0.6122 | .378 |
+
+---
+
+## Combined Model — Operations + H-2A Workers (Collinearity Test)
+
+**Formula:** `violations ~ time + time² + time³ + operations_z + operations_z×time + h2a_workers_z + h2a_workers_z×time + (1 + time | state)`
+
+### Collinearity Check
+
+**Pearson r (operations_z, h2a_workers_z) = 0.056** — near-zero correlation. The two predictors are essentially orthogonal in this sample and are not collinear.
+
+### Fixed Effect Estimates
+
+| Parameter | β | SE | p |
+|-----------|--:|---:|--:|
+| Intercept | 16.6827 | 2.8217 | < .001 |
+| time | 2.9215 | 0.7568 | < .001 |
+| time² | −0.6514 | 0.3440 | .058 |
+| time³ | −0.1525 | 0.0515 | .003 |
+| **operations_z** | **6.8620** | **2.5191** | **.006** |
+| **operations_z × time** | **1.1424** | **0.4675** | **.015** |
+| **h2a_workers_z** | **9.2657** | **2.9639** | **.002** |
+| **h2a_workers_z × time** | **1.2624** | **0.5920** | **.033** |
+
+### Variance Decomposition
+
+| Component | Value |
+|-----------|------:|
+| σ²_u0 (between-state) | 229.14 |
+| σ²_ε (within-state) | 95.31 |
+| **Δ vs. M0** | **+96.57** |
+| **% between-state variance explained** | **29.6%** |
+| Log-Likelihood | −960.32 |
+
+### Comparison Against Single-Predictor Best Models
+
+| Model | % Between-State Variance Explained |
+|-------|-----------------------------------:|
+| M3b — operations only (+×time) | 18.7% |
+| M4b — H-2A workers only (+×time) | 18.3% |
+| **M6 — both together (+×time)** | **29.6%** |
+| **Increment over best single predictor** | **+10.9 pp** |
+
+### Interpretation
+
+The combined model confirms that farming operations and H-2A workers capture **independent variance** in state-level violations. Despite absorbing nearly identical amounts of between-state variance individually (~18–19% each), the two predictors are almost uncorrelated (r = 0.056). When entered together, they explain 29.6% of between-state variance — a meaningful 10.9 percentage-point increment over the best single predictor alone.
+
+Both predictors remain statistically significant in the joint model:
+- **operations_z**: β = 6.86, p = .006 (main effect); β = 1.14, p = .015 (×time interaction)
+- **h2a_workers_z**: β = 9.27, p = .002 (main effect); β = 1.26, p = .033 (×time interaction)
+
+This suggests that total farming scale (operations) and agricultural labor demand (H-2A workers) capture distinct dimensions of state agricultural activity — both of which independently predict WPS violation rates and their change over time.
 
 ---
 
@@ -325,9 +446,9 @@ Although the main effect reaches nominal significance in model (a) (p = .046), b
 
 **1. Spending variables explain little between-state variance (~2–4%) and are not statistically significant.** This is worth discussing with the team — it may reflect that raw or normalized spending levels are not the primary driver of state-level baseline violations, or that the spending measure lacks sufficient variation once normalized.
 
-**2. Total farming operations and H-2A workers are the strongest single predictors**, each absorbing ~17% of between-state variance. Both are also significant when interacted with time, suggesting that agricultural scale predicts not just baseline violation rates but the trajectory of violations over the study period.
+**2. Total farming operations and H-2A workers are the strongest single predictors**, each absorbing ~17–19% of between-state variance when interacted with time. Both are significant in their respective models.
 
-**3. Farming operations and H-2A workers are likely collinear.** Including both in the same model risks coefficient suppression. VIF analysis is the next step before adding both together.
+**3. Farming operations and H-2A workers are NOT collinear (r = 0.056).** Including both in the combined model yields additive benefit — 29.6% of between-state variance explained, versus ~18% for either alone. This rules out coefficient suppression concerns and supports including both predictors in the final model.
 
 **4. Land area does not empirically reduce between-state variance.** While the travel-burden hypothesis is plausible, the data do not support it as a meaningful covariate in this model.
 
@@ -339,10 +460,9 @@ Although the main effect reaches nominal significance in model (a) (p = .046), b
 
 - [ ] **Pull ECHO WPS establishment counts for 2020–2022** (Stephane's specific ask) — required before per-establishment spending can be used for any analysis period extending to 2022
 - [ ] Obtain USDA Census of Agriculture farm counts (2012 and 2017) to fill the 2011–2013 ECHO establishment gap; document substitution in methods
-- [ ] Obtain USDA NASS Quick Stats harvested cropland acres by state for the study period to compute the priority dollars-per-acre operationalization (Option 1, identified as the primary operationalization in the original email thread)
-- [ ] Check VIF for farming operations + H-2A workers before including both in a joint model — they absorb nearly identical between-state variance (~17% each), suggesting high collinearity
-- [ ] Discuss with team: spending per establishment explains only ~4% of between-state variance and is not statistically significant; this may warrant revisiting the operationalization or examining whether spending is driving violations at all in this study period
-- [ ] Continue building toward the full Aim 3 model by adding significant predictors jointly
+- [ ] Obtain USDA NASS Quick Stats harvested cropland acres by state to compute the priority dollars-per-acre operationalization
+- [ ] **Build toward the full Aim 3 model**: operations + H-2A workers (both × time) is the current best specification. Next step is adding the spending predictor jointly and testing whether it contributes independent variance beyond the agricultural scale predictors.
+- [ ] Discuss with team: spending per establishment explains only ~4% of between-state variance and is not significant; revisit operationalization or examine whether spending is driving violations in this period
 
 ---
 

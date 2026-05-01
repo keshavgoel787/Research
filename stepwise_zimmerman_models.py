@@ -294,7 +294,7 @@ for col in covariate_cols:
 # [6] MODEL FITTING HELPER
 # ============================================================
 
-def fit_mixedlm(formula, data, label):
+def fit_mixedlm(formula, data, label, pred_cols=None):
     """Fit a MixedLM with random intercept + random slope for time."""
     model = MixedLM.from_formula(
         formula,
@@ -307,26 +307,51 @@ def fit_mixedlm(formula, data, label):
     var_rs  = result.cov_re.iloc[1, 1]
     var_res = result.scale
     return {
-        'label':   label,
-        'formula': formula,
-        'llf':     result.llf,
-        'var_ri':  var_ri,
-        'var_rs':  var_rs,
-        'var_res': var_res,
-        'result':  result
+        'label':     label,
+        'formula':   formula,
+        'llf':       result.llf,
+        'var_ri':    var_ri,
+        'var_rs':    var_rs,
+        'var_res':   var_res,
+        'result':    result,
+        'fe_params': result.fe_params,
+        'pvalues':   result.pvalues,
+        'bse':       result.bse,
+        'pred_cols': pred_cols or [],
     }
 
 
 def variance_table(models, baseline_var_ri):
-    """Print variance decomposition table."""
-    header = f"{'Model':<45} {'σ²_u0':>8} {'σ²_ε':>8} {'Δσ²_u0':>8} {'%Expl':>7} {'LogLik':>10}"
-    print(header)
-    print("-" * len(header))
+    """Print variance decomposition table with fixed effect parameter estimates."""
+    # -- Variance component block --
+    hdr = f"{'Model':<45} {'σ²_u0':>8} {'σ²_ε':>8} {'Δσ²_u0':>8} {'%Expl':>7} {'LogLik':>10}"
+    print(hdr)
+    print("-" * len(hdr))
     for m in models:
         delta    = baseline_var_ri - m['var_ri']
         pct_expl = (delta / baseline_var_ri * 100) if baseline_var_ri > 0 else 0
         print(f"  {m['label']:<43} {m['var_ri']:>8.4f} {m['var_res']:>8.4f} "
               f"{delta:>+8.4f} {pct_expl:>6.1f}% {m['llf']:>10.2f}")
+
+    # -- Fixed effects block --
+    print()
+    print("Fixed Effect Parameter Estimates")
+    print("-" * 90)
+    fe_hdr = f"  {'Model':<38} {'Parameter':<35} {'β':>9} {'SE':>8} {'p':>7}"
+    print(fe_hdr)
+    print("  " + "-" * 88)
+    for m in models:
+        fe   = m['fe_params']
+        se   = m['bse']
+        pv   = m['pvalues']
+        params_to_show = ['Intercept', 'time', 'time2', 'time3'] + m['pred_cols']
+        first = True
+        for param in params_to_show:
+            if param in fe:
+                label_col = m['label'] if first else ''
+                print(f"  {label_col:<38} {param:<35} {fe[param]:>9.4f} {se[param]:>8.4f} {pv[param]:>7.3f}")
+                first = False
+        print()
 
 
 # ============================================================
@@ -338,7 +363,8 @@ print("=" * 70)
 
 m0 = fit_mixedlm(
     'violations ~ time + time2 + time3',
-    df_full, 'M0: Unconditional (time only)'
+    df_full, 'M0: Unconditional (time only)',
+    pred_cols=[]
 )
 print(m0['result'].summary())
 
@@ -381,12 +407,13 @@ for pred_col, pred_label in predictor_sequence:
     # (a) Main effect only
     formula_a = f'violations ~ time + time2 + time3 + {pred_col}'
     label_a   = f'  + {pred_col[:30]} (main)'
-    m_a = fit_mixedlm(formula_a, df_full, label_a)
+    m_a = fit_mixedlm(formula_a, df_full, label_a, pred_cols=[pred_col])
 
     # (b) Main effect + linear time interaction
     formula_b = f'violations ~ time + time2 + time3 + {pred_col} + {pred_col}:time'
     label_b   = f'  + {pred_col[:30]} (main + ×time)'
-    m_b = fit_mixedlm(formula_b, df_full, label_b)
+    m_b = fit_mixedlm(formula_b, df_full, label_b,
+                      pred_cols=[pred_col, f'{pred_col}:time'])
 
     all_models.extend([m_a, m_b])
 
@@ -420,9 +447,74 @@ print("=" * 70)
 variance_table(all_models, baseline_var_ri)
 
 # ============================================================
-# [10] SAVE LEVEL-2 COVARIATE TABLE
+# [10] COMBINED MODEL — OPERATIONS + H-2A WORKERS (COLLINEARITY TEST)
 # ============================================================
-print("\n[10] Saving Level-2 covariate table...")
+print("\n" + "=" * 70)
+print("COMBINED MODEL — operations_z + h2a_workers_z (both with ×time)")
+print("Tests whether the two strongest predictors explain independent")
+print("variance or are effectively collinear.")
+print("=" * 70)
+
+# Pearson correlation between the two predictors
+corr_ops_h2a = df_full[['operations_z', 'h2a_workers_z']].dropna().corr().iloc[0, 1]
+print(f"\nPearson r (operations_z, h2a_workers_z): {corr_ops_h2a:.4f}")
+
+combined_formula = (
+    'violations ~ time + time2 + time3 '
+    '+ operations_z + operations_z:time '
+    '+ h2a_workers_z + h2a_workers_z:time'
+)
+m_combined = fit_mixedlm(
+    combined_formula, df_full,
+    'M6: operations + h2a_workers (both ×time)',
+    pred_cols=['operations_z', 'operations_z:time', 'h2a_workers_z', 'h2a_workers_z:time']
+)
+
+fe_c  = m_combined['fe_params']
+se_c  = m_combined['bse']
+pv_c  = m_combined['pvalues']
+delta_c = baseline_var_ri - m_combined['var_ri']
+pct_c   = delta_c / baseline_var_ri * 100
+
+print(f"\nCombined model fixed effects:")
+print(f"  {'Parameter':<35} {'β':>9} {'SE':>8} {'p':>7}")
+print("  " + "-" * 62)
+for param in ['Intercept', 'time', 'time2', 'time3',
+              'operations_z', 'operations_z:time',
+              'h2a_workers_z', 'h2a_workers_z:time']:
+    if param in fe_c:
+        print(f"  {param:<35} {fe_c[param]:>9.4f} {se_c[param]:>8.4f} {pv_c[param]:>7.3f}")
+
+print(f"\nVariance decomposition:")
+print(f"  σ²_u0 (between-state): {m_combined['var_ri']:.4f}  "
+      f"[Δ={delta_c:+.4f} vs. M0, {pct_c:.1f}% explained]")
+print(f"  σ²_ε  (within-state):  {m_combined['var_res']:.4f}")
+print(f"  Log-Likelihood: {m_combined['llf']:.2f}")
+
+# Compare combined vs. individual best models
+best_ops  = [m for m in all_models if 'operations_z' in m['formula'] and 'h2a' not in m['formula'] and ':time' in m['formula']]
+best_h2a  = [m for m in all_models if 'h2a_workers_z' in m['formula'] and 'operations' not in m['formula'] and ':time' in m['formula']]
+if best_ops:
+    pct_ops = (baseline_var_ri - best_ops[0]['var_ri']) / baseline_var_ri * 100
+    print(f"\n  M3b (operations only ×time):  {pct_ops:.1f}% between-state variance explained")
+if best_h2a:
+    pct_h2a = (baseline_var_ri - best_h2a[0]['var_ri']) / baseline_var_ri * 100
+    print(f"  M4b (h2a_workers only ×time): {pct_h2a:.1f}% between-state variance explained")
+print(f"  M6  (both ×time combined):    {pct_c:.1f}% between-state variance explained")
+print()
+pct_ops_val = (baseline_var_ri - best_ops[0]['var_ri']) / baseline_var_ri * 100 if best_ops else 0
+pct_h2a_val = (baseline_var_ri - best_h2a[0]['var_ri']) / baseline_var_ri * 100 if best_h2a else 0
+best_single  = max(pct_ops_val, pct_h2a_val)
+increment    = pct_c - best_single
+print(f"  Combined explains {pct_c:.1f}% vs. best single predictor ({best_single:.1f}%) — "
+      f"increment = {increment:+.1f} pp")
+
+all_models.append(m_combined)
+
+# ============================================================
+# [11] SAVE LEVEL-2 COVARIATE TABLE
+# ============================================================
+print("\n[11] Saving Level-2 covariate table...")
 output_cols = ['state', 'land_area_sqmi', 'establishments_mean',
                'mean_spending_2017', 'spending_per_estab',
                'operations', 'h2a_workers', 'workers_per_operation',
