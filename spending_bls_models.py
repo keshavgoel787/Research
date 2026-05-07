@@ -461,6 +461,20 @@ print(f"\n  Combined model:  σ²_u0 = {m_combined['var_ri']:.4f}  ({pct_c:.1f}%
 int_in_str = ', '.join([v.replace('_z','') for v in included_interactions]) if included_interactions else 'none'
 print(f"  Interactions included in combined model (p<.20): {int_in_str}")
 
+# ============================================================
+# [11] SAVE CONSTRUCTED VARIABLES TO CSV
+# ============================================================
+print("\n[11] Saving constructed spending variables...")
+
+save_cols = ['state', 'mean_spending_2017', 'land_area_sqmi', 'operations',
+             'emp_farmworker', 'emp_pesticide_app', 'emp_flc_supervisor',
+             'SPEND_WORK', 'SPEND_APP', 'SPEND_FLC', 'SPEND_OP', 'SPEND_AREA',
+             'SPEND_WORK_z', 'SPEND_APP_z', 'SPEND_FLC_z', 'SPEND_OP_z', 'SPEND_AREA_z']
+
+level2[save_cols].to_csv('/Users/keshavgoel/Research/spend_bls_variables.csv', index=False)
+print("  Saved: spend_bls_variables.csv")
+print(f"  Rows: {len(level2)}  |  Columns: {save_cols}")
+
 print("\n" + "=" * 70)
 print("ANALYSIS COMPLETE")
 print("=" * 70)
