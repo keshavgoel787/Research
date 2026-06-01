@@ -22,6 +22,10 @@ python3 inspections_hierarchical_model.py
 python3 inspections_stepwise_zimmerman_models.py
 python3 inspections_spending_bls_models.py    # requires spend_bls_variables.csv
 python3 inspections_targeted_spend_model.py   # requires spend_bls_variables.csv
+
+# Labor intensity & DOL H-2A covariate models (new datasets)
+python3 labor_covariates_violations_models.py
+python3 labor_covariates_inspections_models.py
 ```
 
 Scripts must be run from `/Users/keshavgoel/Research/` — all file paths are absolute and hardcoded.
@@ -51,6 +55,13 @@ Script dependencies:
 - `spending_bls_models.py` must also run before `inspections_spending_bls_models.py` and `inspections_targeted_spend_model.py` (both read `spend_bls_variables.csv`)
 
 Unused data file: `h2a_state_summary_2022.csv` — present in the directory but not referenced by any script.
+
+New data files (used by `labor_covariates_*.py`):
+  labor_intensity_index_2012.csv  ← Census of Agriculture LII, 2012 (50 states × 2 cols)
+  labor_intensity_index_2017.csv  ← Census of Agriculture LII, 2017
+  labor_intensity_index_2022.csv  ← Census of Agriculture LII, 2022 (outside study period; not modeled)
+  dol_var1_workers_by_state_annual.csv ← DOL H-2A annual workers/cases 2008–2025 (2013 missing; 2014 requests=0)
+  dol_var2_employer_type_annual.csv    ← DOL H-2A employer type breakdown 2020–2025 only (2020 used as proxy)
 
 ## Modeling Conventions (Apply to Every Script)
 
@@ -82,6 +93,8 @@ Unused data file: `h2a_state_summary_2022.csv` — present in the directory but 
 | `inspections_stepwise_zimmerman_models.py` | Same Zimmerman sequence with inspections DV | Terminal output only |
 | `inspections_spending_bls_models.py` | Same BLS spending stepwise with inspections DV; reads existing `spend_bls_variables.csv` | Terminal output only |
 | `inspections_targeted_spend_model.py` | Same FIFRA targeted model with inspections DV | Terminal output only |
+| `labor_covariates_violations_models.py` | Zimmerman stepwise for 6 new labor/DOL covariates, DV = violations | Terminal output only |
+| `labor_covariates_inspections_models.py` | Same, DV = inspections | Terminal output only |
 
 ## BLS OEWS Data Notes
 
